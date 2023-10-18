@@ -8,17 +8,26 @@ const temperatura = ref(0)
 const local = ref('None')
 const condicao = ref('None')
 const countryFlag = ref('')
+const vento = ref('')
+const nuvem = ref('')
 //const vento, chuvaPorcentagem
 async function  buscarClima(){
   if(location.value == null || location.value == ''){
     console.log('A localização está vazia')
     return
   }
-  Api.value = await getCountry(location.value)
-  temperatura.value = Api.value['main']['temp']
-  local.value = Api.value['name']
-  condicao.value = Api.value['weather'][0]['description']
-  countryFlag.value = `https://flagsapi.com/${Api.value['sys']['country']}/shiny/48.png`
+  try{
+
+    Api.value = await getCountry(location.value)
+    temperatura.value = (Api.value['main']['temp']).toFixed(0)
+    local.value = Api.value['name']
+    condicao.value = Api.value['weather'][0]['description']
+    vento.value = (Api.value['wind']['speed'] * 3.6).toFixed(0)
+    nuvem.value = Api.value['clouds']['all']
+    countryFlag.value = `https://flagsapi.com/${Api.value['sys']['country']}/shiny/48.png`
+  }catch(err){
+    console.log('Cidade não encontrada')
+  }
 }
 
 
@@ -63,7 +72,7 @@ async function  buscarClima(){
           class="text-h3"
           cols="6"
         >
-          {{ temperatura }}&deg;F
+          {{ temperatura }}&deg;C
         </v-col>
         <v-col cols="6" class="text-right">
           <v-icon
@@ -80,14 +89,14 @@ async function  buscarClima(){
         density="compact"
         prepend-icon="mdi-weather-windy"
       >
-        <v-list-item-subtitle>123 km/h</v-list-item-subtitle>
+        <v-list-item-subtitle>{{ vento }} km/h</v-list-item-subtitle>
       </v-list-item>
 
       <v-list-item
         density="compact"
         prepend-icon="mdi-weather-pouring"
       >
-        <v-list-item-subtitle>48%</v-list-item-subtitle>
+        <v-list-item-subtitle>{{ nuvem }}%</v-list-item-subtitle>
       </v-list-item>
     </div>
 
